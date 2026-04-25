@@ -93,6 +93,26 @@ npm run build:web
 
 然后重新上传 `site/` 目录即可。
 
+## 手机操作
+
+网页版会自动在手机/平板上显示触控按钮：
+
+- 左下角：`←` / `→` 移动
+- 右下角：`跳` 跳跃
+- 支持多点触控，可以按住方向键的同时点击跳跃
+
+桌面端如需测试触控按钮，可以在 URL 后追加：
+
+```text
+?controls=1
+```
+
+例如：
+
+```text
+https://goo4it.github.io/blocks-revenge/?controls=1
+```
+
 ## 当前 GitHub Pages 地址
 
 ```text

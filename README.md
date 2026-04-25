@@ -30,6 +30,16 @@ cd site
 python3 -m http.server 8080
 ```
 
+## Mobile controls
+
+The web build injects touch controls for phones and tablets:
+
+- bottom left: `←` / `→` movement
+- bottom right: `跳` jump
+- multi-touch is supported, so players can hold a direction and tap jump at the same time
+
+On desktop, append `?controls=1` to the URL to force-show the touch controls for testing.
+
 ## GitHub Pages
 
 The repository includes a GitHub Actions workflow at:
