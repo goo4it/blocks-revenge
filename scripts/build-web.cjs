@@ -57,6 +57,9 @@ html, body {
   min-height: 100%;
   background: #ffffff;
   overscroll-behavior: none;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
 body {
   display: flex;
@@ -64,8 +67,18 @@ body {
   justify-content: center;
   touch-action: none;
 }
+*, *::before, *::after {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-drag: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
 canvas {
   image-rendering: auto;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
 #br-touch-controls {
   position: fixed;
@@ -101,7 +114,17 @@ canvas {
   font: 800 clamp(28px, 8vw, 42px)/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   pointer-events: auto;
   touch-action: none;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
   -webkit-tap-highlight-color: transparent;
+}
+#br-touch-controls .br-touch-button::before {
+  content: attr(data-label);
+  pointer-events: none;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
 #br-touch-controls .br-touch-button[data-key="ArrowUp"] {
   width: clamp(76px, 21vw, 108px);
@@ -141,6 +164,18 @@ html.br-touch-force #br-touch-controls {
   const KEY_CODES = { ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39 };
   const activePointers = new Map();
   const activeCounts = new Map();
+
+  const blockNativeLongPress = (event) => {
+    event.preventDefault();
+  };
+  for (const type of ['selectstart', 'contextmenu', 'dragstart']) {
+    document.addEventListener(type, blockNativeLongPress, { capture: true });
+  }
+  // iOS/WeChat may emit gesture events or show text tools on long press; block
+  // those native browser behaviors for this game page.
+  for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
+    document.addEventListener(type, blockNativeLongPress, { capture: true, passive: false });
+  }
 
   const createKeyboardEvent = (type, key) => {
     const event = new KeyboardEvent(type, {
@@ -201,8 +236,39 @@ html.br-touch-force #br-touch-controls {
     button.type = 'button';
     button.className = 'br-touch-button';
     button.dataset.key = key;
-    button.textContent = label;
+    // Use CSS generated content instead of a real text node so WeChat/iOS has
+    // nothing selectable when the player long-presses the jump button.
+    button.dataset.label = label;
     button.setAttribute('aria-label', ariaLabel);
+    button.setAttribute('unselectable', 'on');
+
+    for (const type of ['selectstart', 'contextmenu', 'dragstart']) {
+      button.addEventListener(type, blockNativeLongPress, { capture: true });
+    }
+    // Prevent iOS/WeChat from opening text selection/search/translate tools on
+    // long press. Pointer events handle modern browsers; the touch fallback keeps
+    // controls working on older WebViews without PointerEvent support.
+    button.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      if (window.PointerEvent) return;
+      for (const touch of event.changedTouches) {
+        const touchId = 'touch-' + touch.identifier;
+        if (activePointers.has(touchId)) releasePointer(touchId);
+        activePointers.set(touchId, key);
+        button.classList.add('br-active');
+        pressKey(key);
+      }
+    }, { passive: false });
+    button.addEventListener('touchmove', blockNativeLongPress, { passive: false });
+    for (const type of ['touchend', 'touchcancel']) {
+      button.addEventListener(type, (event) => {
+        event.preventDefault();
+        if (window.PointerEvent) return;
+        for (const touch of event.changedTouches) {
+          releasePointer('touch-' + touch.identifier);
+        }
+      }, { passive: false });
+    }
 
     button.addEventListener('pointerdown', (event) => {
       event.preventDefault();
