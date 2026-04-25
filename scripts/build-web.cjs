@@ -120,17 +120,31 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 #br-touch-controls .br-touch-button::before {
-  content: attr(data-label);
+  content: "";
   pointer-events: none;
+  display: block;
+  width: clamp(30px, 8vw, 42px);
+  height: clamp(30px, 8vw, 42px);
+  background: currentColor;
   -webkit-user-select: none !important;
   user-select: none !important;
   -webkit-touch-callout: none !important;
+}
+#br-touch-controls .br-touch-button[data-key="ArrowLeft"]::before {
+  clip-path: polygon(68% 0, 20% 50%, 68% 100%, 82% 86%, 48% 50%, 82% 14%);
+}
+#br-touch-controls .br-touch-button[data-key="ArrowRight"]::before {
+  clip-path: polygon(32% 0, 80% 50%, 32% 100%, 18% 86%, 52% 50%, 18% 14%);
 }
 #br-touch-controls .br-touch-button[data-key="ArrowUp"] {
   width: clamp(76px, 21vw, 108px);
   height: clamp(76px, 21vw, 108px);
   background: rgba(127, 0, 255, 0.38);
-  font-size: clamp(22px, 6vw, 32px);
+}
+#br-touch-controls .br-touch-button[data-key="ArrowUp"]::before {
+  width: clamp(34px, 9vw, 48px);
+  height: clamp(34px, 9vw, 48px);
+  clip-path: polygon(50% 6%, 92% 48%, 70% 48%, 70% 92%, 30% 92%, 30% 48%, 8% 48%);
 }
 #br-touch-controls .br-touch-button.br-active {
   transform: translateY(2px) scale(0.96);
@@ -231,14 +245,14 @@ html.br-touch-force #br-touch-controls {
     });
   };
 
-  const createButton = (key, label, ariaLabel) => {
+  const createButton = (key, ariaLabel) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'br-touch-button';
     button.dataset.key = key;
-    // Use CSS generated content instead of a real text node so WeChat/iOS has
-    // nothing selectable when the player long-presses the jump button.
-    button.dataset.label = label;
+    // Do not put visible text in the button. WeChat/iOS may select even a
+    // pseudo-element text label on long press, so the icon is drawn with CSS
+    // clip-path shapes instead.
     button.setAttribute('aria-label', ariaLabel);
     button.setAttribute('unselectable', 'on');
 
@@ -303,13 +317,13 @@ html.br-touch-force #br-touch-controls {
     const leftGroup = document.createElement('div');
     leftGroup.className = 'br-touch-group';
     leftGroup.append(
-      createButton('ArrowLeft', '←', '向左'),
-      createButton('ArrowRight', '→', '向右')
+      createButton('ArrowLeft', '向左'),
+      createButton('ArrowRight', '向右')
     );
 
     const rightGroup = document.createElement('div');
     rightGroup.className = 'br-touch-group';
-    rightGroup.append(createButton('ArrowUp', '跳', '跳跃'));
+    rightGroup.append(createButton('ArrowUp', '跳跃'));
 
     controls.append(leftGroup, rightGroup);
     document.body.appendChild(controls);

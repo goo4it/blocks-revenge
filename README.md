@@ -35,7 +35,7 @@ python3 -m http.server 8080
 The web build injects touch controls for phones and tablets:
 
 - bottom left: `←` / `→` movement
-- bottom right: `跳` jump
+- bottom right: up-arrow jump button
 - multi-touch is supported, so players can hold a direction and tap jump at the same time
 
 On desktop, append `?controls=1` to the URL to force-show the touch controls for testing.
