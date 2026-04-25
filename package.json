@@ -1,0 +1,14 @@
+{
+  "name": "blocks-revenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Block's Revenge / 小方块的逆袭 Scratch 游戏网页版部署包",
+  "type": "commonjs",
+  "scripts": {
+    "build:web": "node scripts/build-web.cjs",
+    "serve:web": "npx serve site"
+  },
+  "devDependencies": {
+    "@turbowarp/packager": "3.12.0"
+  }
+}

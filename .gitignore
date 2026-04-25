@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+*.tmp.sb3
+*.bak.sb3
+*.before-*.sb3
